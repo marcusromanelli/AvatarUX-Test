@@ -16,7 +16,8 @@ export default class MachineData{
                            },
                            numberOfReels: 3,
                            numberOfTokens: 19,
-                           numberOfRows: 3
+                           numberOfRows: 3,
+                           betValue: 1
   };
 
 
@@ -31,7 +32,8 @@ export default class MachineData{
                            },
                            numberOfReels: 5,
                            numberOfTokens: 19,
-                           numberOfRows: 3
+                           numberOfRows: 3,
+                           betValue: 1
   };
 
 
@@ -46,11 +48,13 @@ export default class MachineData{
                            },
                            numberOfReels: 7,
                            numberOfTokens: 19,
-                           numberOfRows: 3
+                           numberOfRows: 3,
+                           betValue: 1
   };
 
   public resultPossibilities: ResultPossibilities = null;
   public numberOfReels: number = 3;
   public numberOfTokens: number = 30;
   public numberOfRows: number = 3;
+  public betValue: number = 1;
 }

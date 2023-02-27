@@ -1,4 +1,4 @@
-import { _decorator, Component, Prefab, Widget, CCInteger, CCFloat, instantiate, CCString } from 'cc';
+import { _decorator, Component, Prefab, Widget, CCInteger, CCFloat, instantiate, CCString, Label } from 'cc';
 const { ccclass, property } = _decorator;
 
 import SpinButton from '../ui/SpinButton';
@@ -13,34 +13,39 @@ export default class Machine extends Component {
 //  /**
 //   * Spin button component
 //   */
-  @property(CCString)
-  public machineId = "machine_test_identification";
+@property(CCString)
+public machineId = "machine_test_identification";
 //  /**
 //   * Spin button component
 //   */
-  @property(SpinButton)
-  public button = null;
+@property(Label)
+public betValueLabel = null;
+//  /**
+//   * Spin button component
+//   */
+@property(SpinButton)
+public button = null;
 //  /**
 //   * Reel main prefab
 //   */
-  @property(Prefab)
-  public _reelPrefab = null;
+@property(Prefab)
+public _reelPrefab = null;
 //  /**
 //   * Machine widget component
 //   */
-  @property(Widget)
-  public widget = null;
-  @property({ type: Prefab })
-  get reelPrefab(): Prefab {
-          return this._reelPrefab;
-  }
-  set reelPrefab(newPrefab: Prefab) {
-         this._reelPrefab = newPrefab;
+@property(Widget)
+public widget = null;
+@property({ type: Prefab })
+get reelPrefab(): Prefab {
+      return this._reelPrefab;
+}
+set reelPrefab(newPrefab: Prefab) {
+      this._reelPrefab = newPrefab;
 
-         if (newPrefab !== null) {
-          this.createMachine();
-         }
-  }
+      if (newPrefab !== null) {
+            this.createMachine();
+      }
+}
 
   private _machineData: MachineData ;
   /**
@@ -84,17 +89,18 @@ export default class Machine extends Component {
   * Initializes all Reels
   */
   createMachine(): void {
-        this.clearChildren();
-    
-        let newReel;
-    
-        for (let i = 0; i < this._machineData.numberOfReels; i += 1) {
-          let spinDirection = i % 2 ? EnumSlot.Direction.Down : EnumSlot.Direction.Up;
-    
-          this.instantiateReel(spinDirection, i);
-        }
-    
-        this.widget.updateAlignment();
+      this.betValueLabel.string = "Bet value: $" + this._machineData.betValue;
+      this.clearChildren();
+
+      let newReel;
+
+      for (let i = 0; i < this._machineData.numberOfReels; i += 1) {
+            let spinDirection = i % 2 ? EnumSlot.Direction.Down : EnumSlot.Direction.Up;
+
+            this.instantiateReel(spinDirection, i);
+      }
+
+      this.widget.updateAlignment();
   }
  /**
   * Instantiate a Reel and set a Spin Direction;
@@ -116,7 +122,7 @@ export default class Machine extends Component {
   spin(): void {
         this.isSpinning = true;
 
-        this.hideButton();
+        this.disableButton();
 
         this.spinAllReels();
   }
@@ -145,7 +151,7 @@ export default class Machine extends Component {
   * Shows the Main button with a preset "STOP" label
   */
   showStopButton(): void {
-         this.showButtonWithLabel("STOP");
+      this.showButtonWithLabel("STOP");
   }
  /**
   * Shows the Main button with a preset "SPIN" label
@@ -158,22 +164,21 @@ export default class Machine extends Component {
   * @param label The desirable text
   */
   showButtonWithLabel(label): void{
-        this.button.enable();
-        this.button.show();
-        this.button.setLabel(label);
+      this.button.enable();
+      this.button.setLabel(label);
   }
  /**
   * Disables the visibility of the Main button
   */
-  hideButton(): void{
-        this.button.hide();
+  disableButton(): void{
+        this.button.disable();
   }
  /**
   * Machine spinning Stop process. Sends result information to each Reel.
   * @param result S
   */
   stop(result: ResultData = null): void {
-        this.hideButton();
+        this.disableButton();
 
         setTimeout(() => {
         this.isSpinning = false;

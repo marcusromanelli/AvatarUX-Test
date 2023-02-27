@@ -6,6 +6,7 @@ import EnumResult from "../enumerators/ResultType";
 import Possibility from "../structs/Possibility";
 import ResultData from "../structs/ResultData";
 import MachineData from '../structs/MachineData';
+import UserData from '../structs/UserData';
 
 class ChosenRowData{
     public rowIndex: number = 0;
@@ -19,10 +20,12 @@ class ChosenRowData{
 export default class Server extends Component{
     private _initialized = false;
     private _machines: { [id: string] : MachineData; } = {};
+    private _users: UserData[] = [];
 
-    private checkInitialziation(){
+    private checkInitialization(){
         this.initialize();
     }
+
     private initialize(){
         if(this._initialized)
             return;
@@ -33,98 +36,10 @@ export default class Server extends Component{
         this._initialized = true;
     }
 
-   /**
-    * Choose which kind of result the machine will output
-    * @param PossibilitiesCollection 
-    */
-    private CalculatePossibility(PossibilitiesCollection: ResultPossibilities): Possibility{
-        let possibilities = PossibilitiesCollection.possibilities;
-
-        let sumOfWeights = 0;
-
-        for(let i = 0; i < possibilities.length; i++) {
-            sumOfWeights += possibilities[i].percentage;
-        }
-
-        let randomNumber = Math.random() * sumOfWeights;
-        let chosenPossibility;
-
-        for(let i = 0; i < possibilities.length; i++) {
-            if(randomNumber < possibilities[i].percentage){
-                chosenPossibility = possibilities[i];
-                break;
-            }
-
-            randomNumber -= possibilities[i].percentage;
-        }
-
-        return chosenPossibility;
-    }
-
-    /**
-     * Finds a machine on server by identification
-     * @param machineId 
-     */
-    public GetMachineData(machineId: string): MachineData{
-        this.checkInitialziation();
-
-         if(this._machines[machineId] == undefined)
-             return null;
- 
-         return this._machines[machineId];
-     }
-   /**
-    * Generate the resulting number array for display
-    * @param machineNumber 
-    */
-    public GetMachineResult(machineNumber: string): ResultData{
-        let finalArray: Array<Array<number>> = null;
-        let currentMachine = this.GetMachineData(machineNumber);
-        let chosenPossibility;
-
-       //If current machine id is not registered, get the default one
-        if(currentMachine == null)
-            currentMachine = MachineData.Machine_3_reels;
-
-       //First calculate possibility among existing ones
-        chosenPossibility = this.CalculatePossibility(currentMachine.resultPossibilities);
-
-        let numberOfTokens = currentMachine.numberOfTokens
-        let numberOfRows = currentMachine.numberOfRows;
-
-       //Select which rows are not going to be randomized (will be equals)
-        let numberOfWinningRows = chosenPossibility.type;
-
-
-       //Fill an array with all possible tokens to choose
-        let tokensIndexArray = this.getTokenArray(numberOfTokens);
-
-       //Index of winning rows
-        let winningRowsData: ChosenRowData[] = [];
-
-       //If there is a winner, decice which of the rows will be chosen and what tokens will be chosen
-       //Made it this way to future-proof the method, in case of machines with more than 3 rows
-        if(chosenPossibility.type != EnumResult.Type.NoResult)
-            winningRowsData = this.chooseRandomWinnerRows(numberOfWinningRows, currentMachine, tokensIndexArray);
-
-        finalArray = this.generateFinalArray(winningRowsData, currentMachine);
-
-
-        let finalResultData: ResultData = new ResultData;
-        finalResultData.selectedTokens = finalArray;
-
-        let winningTokens = []
-        winningRowsData.forEach(element => {
-            winningTokens.push(element.tokenIndex);
-        });
-        finalResultData.winningTokens = winningTokens;
-
-        return finalResultData;
-    }
     /**
      * Generates the final array based on the input winning row data, remaining token array and machine
      */
-    generateFinalArray(winningRowsData: Array<ChosenRowData>, currentMachine: MachineData){
+    private generateFinalArray(winningRowsData: Array<ChosenRowData>, currentMachine: MachineData){
         let finalArray = [];
 
        //Initialize main array
@@ -166,11 +81,12 @@ export default class Server extends Component{
 
         return finalArray;
     }
+
    /**
     * Generates a token array
     * @param numberOfTokens 
     */
-    getTokenArray(numberOfTokens: number, winningTokensData?: Array<ChosenRowData>): Array<number>{
+    private getTokenArray(numberOfTokens: number, winningTokensData?: Array<ChosenRowData>): Array<number>{
 
         let allTokensIndexes = [];
         for(let i = 0; i < numberOfTokens; i++){
@@ -194,13 +110,14 @@ export default class Server extends Component{
 
         return allTokensIndexes;
     }
+
    /**
     * Calculate all the winning rows
     * @param numberOfWinningRows 
     * @param currentMachine 
     * @param tokenIndexArray 
     */
-    chooseRandomWinnerRows(numberOfWinningRows: number, currentMachine: MachineData, tokenIndexArray: Array<number>): Array<ChosenRowData>{
+    private chooseRandomWinnerRows(numberOfWinningRows: number, currentMachine: MachineData, tokenIndexArray: Array<number>): Array<ChosenRowData>{
         let winningRowsData = [];
 
         let canFinishLoop = false;
@@ -235,5 +152,133 @@ export default class Server extends Component{
         }
 
         return winningRowsData;
+    }    
+
+   /**
+    * Choose which kind of result the machine will output
+    * @param PossibilitiesCollection 
+    */
+   private CalculatePossibility(PossibilitiesCollection: ResultPossibilities): Possibility{
+        let possibilities = PossibilitiesCollection.possibilities;
+
+        let sumOfWeights = 0;
+
+        for(let i = 0; i < possibilities.length; i++) {
+            sumOfWeights += possibilities[i].percentage;
+        }
+
+        let randomNumber = Math.random() * sumOfWeights;
+        let chosenPossibility;
+
+        for(let i = 0; i < possibilities.length; i++) {
+            if(randomNumber < possibilities[i].percentage){
+                chosenPossibility = possibilities[i];
+                break;
+            }
+
+            randomNumber -= possibilities[i].percentage;
+        }
+
+        return chosenPossibility;
+    }
+
+    /**
+     * Finds a machine on server by identification
+     * @param machineId 
+     */
+    public GetMachineData(machineId: string): MachineData{
+        this.checkInitialization();
+
+        if(this._machines[machineId] == undefined)
+            return null;
+
+        return this._machines[machineId];
+    }
+
+    /**
+    * Generate the resulting number array for display
+    * @param machineNumber 
+    */
+    public GetMachineResult(userId: string, machineNumber: string): ResultData{
+        let user = this.GetUserData(userId);
+        let currentMachine = this.GetMachineData(machineNumber);
+
+        if(user.wallet - currentMachine.betValue < 0)
+            return null;
+
+        user.wallet -= currentMachine.betValue;
+
+
+        let finalArray: Array<Array<number>> = null;
+        let chosenPossibility;
+
+    //If current machine id is not registered, get the default one
+        if(currentMachine == null)
+            currentMachine = MachineData.Machine_3_reels;
+
+    //First calculate possibility among existing ones
+        chosenPossibility = this.CalculatePossibility(currentMachine.resultPossibilities);
+
+        let numberOfTokens = currentMachine.numberOfTokens
+        let numberOfRows = currentMachine.numberOfRows;
+
+    //Select which rows are not going to be randomized (will be equals)
+        let numberOfWinningRows = chosenPossibility.type;
+
+
+    //Fill an array with all possible tokens to choose
+        let tokensIndexArray = this.getTokenArray(numberOfTokens);
+
+    //Index of winning rows
+        let winningRowsData: ChosenRowData[] = [];
+
+    //If there is a winner, decice which of the rows will be chosen and what tokens will be chosen
+    //Made it this way to future-proof the method, in case of machines with more than 3 rows
+        if(chosenPossibility.type != EnumResult.Type.NoResult)
+            winningRowsData = this.chooseRandomWinnerRows(numberOfWinningRows, currentMachine, tokensIndexArray);
+
+        finalArray = this.generateFinalArray(winningRowsData, currentMachine);
+
+
+        let finalResultData: ResultData = new ResultData;
+        finalResultData.newUserData = user;
+        finalResultData.selectedTokens = finalArray;
+
+        let winningTokens = []
+        winningRowsData.forEach(element => {
+            winningTokens.push(element.tokenIndex);
+        });
+        finalResultData.winningTokens = winningTokens;
+
+        return finalResultData;
+    }
+
+    /**
+     * Finds a machine on server by identification
+     * @param machineId 
+     */
+    public GetUserData(userId: string): UserData{
+        this.checkInitialization();
+
+        let userData = null;
+
+        if(this._users != null){
+            this._users.forEach(element => {
+                if(userData != null)
+                    return;
+
+                if(element.id == userId){
+                    userData = element;
+                }
+            });
+        }else
+            this._users = [];
+
+        if(userData == null){
+            userData = new UserData();
+            this._users.push(userData);
+        }
+
+        return userData;
     }
 }

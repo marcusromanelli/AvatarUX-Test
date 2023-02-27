@@ -5,25 +5,32 @@ import Machine from "../slots/Machine";
 import RestManager from "./RestManager";
 import ResultData from "../structs/ResultData";
 import MachineData from '../structs/MachineData';
+import UserData from '../structs/UserData';
+import User from './User';
 
 @ccclass('GameManager')
 export default class GameManager extends Component {
-/**
- * Rest component
- */
+ /**
+   * Rest component
+   */
   @property(RestManager)
   restManager = null;
-/**
- * Main Machine component
- */
+  /**
+    * User manager component
+    */
+   @property(User)
+   user = null;
+ /**
+   * Main Machine component
+   */
   @property(Machine)
   machine = null;
-/**
- * Audio component
- */
+ /**
+   * Audio component
+   */
   @property(AudioSource)
   audioSource = null;
-/**
+ /**
  * Button click asset
  * TODO: A SoundManager class should exist to manage such things
  */
@@ -36,15 +43,26 @@ export default class GameManager extends Component {
   start(): void{
       this.initialize();
   }
+
   initialize(): void{
       this.restManager.requestMachineData(this.machine.machineId, this.answerResult, this.answerError)
       .then(result => {
             this.initializeMachine(result)
       });
+      
+      this.restManager.requestUserData(this.user, this.answerResult, this.answerError)
+      .then(result => {
+            this.refreshUserData(result)
+      });
   }
+
   initializeMachine(machineData: MachineData): void{
       this.machine.SetData(machineData);
       this.machine.node.parent.active = true;
+  }
+
+  refreshUserData(userData: UserData){
+      this.user.Update(userData);
   }
 
 
@@ -75,21 +93,27 @@ export default class GameManager extends Component {
  */
   roll(): void {
         if (this.machine.isSpinning === true)
-        return;
+            return;
+        
+        this.requestResult(result => {
+            if(result == null)
+                  return;
 
-        this.machine.spin();
-        this.requestResult();
+            this.refreshUserData(result.newUserData);
+            this.result = result;
+            this.machine.spin();
+            this.machine.showStopButton();
+        });
   }
 /**
  * Request Machine result from server
  */
-  async requestResult(): Promise<void> {
+  async requestResult(onResult): Promise<void> {
         this.result = null;
 
-        this.restManager.requestReelResult(this.machine.machineId, this.answerResult, this.answerError)
+        this.restManager.requestReelResult(this.user.id, this.machine.machineId, this.answerResult, this.answerError)
         .then(result => {
-          this.machine.showStopButton();
-          this.result = result;
+            onResult(result);
         });
   }
   answerError(): any{

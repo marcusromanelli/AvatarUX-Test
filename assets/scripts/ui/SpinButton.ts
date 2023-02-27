@@ -13,12 +13,12 @@ export default class SpinButton extends Component {
     setLabel(text): void{
         this.label.string = text;
     }
-    hide(): void{
+    /*hide(): void{
         this.toggleVisilibity(false);
     }
     show(): void{
         this.toggleVisilibity(true);
-    }
+    }*/
     toggleVisilibity(value): void{
         this.button.node.active = value;
     }

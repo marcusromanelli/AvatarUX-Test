@@ -5,10 +5,11 @@ import Slot from "../enumerators/SlotDirection";
 import Reel from "./Reel";
 import ResultData from "../structs/ResultData";
 import TokenData from "../structs/TokenData";
+import TokenIcon from '../structs/TokenIcon';
 
 @ccclass('Tile')
 export default class Tile extends Component {
-  @property({ type: [SpriteFrame], visible: true })
+  @property({ type: [TokenIcon], visible: true })
   private textures = [];
 
   @property({ type: AudioSource })
@@ -24,6 +25,7 @@ export default class Tile extends Component {
   private spinDirectionModifier: number;
   private willStopSpinning: boolean;
   private tokenData: TokenData;
+  private currentSprite: TokenIcon;
 
   initialize(parentReel: Reel): void{
         this.parentReel = parentReel;
@@ -47,7 +49,11 @@ export default class Tile extends Component {
         });
   }*/
   setToken(index: number): void {
-        this.sprite.spriteFrame = this.textures[index];
+      var safeIndex = index % this.textures.length;
+
+      this.currentSprite =  this.textures[safeIndex];
+
+      this.sprite.spriteFrame = this.currentSprite.sprite;
   }
   setRandom(): void {
         const randomIndex = Math.floor(Math.random() * this.textures.length);
@@ -162,6 +168,12 @@ export default class Tile extends Component {
         this.toggleGlowEffect(false);
   }
   toggleGlowEffect(value: boolean): void{
-        this.glowEffect.active = value;
+      if(this.currentSprite == null)
+            return;
+
+      if(value)
+            this.sprite.spriteFrame = this.currentSprite.glow;
+      else
+            this.sprite.spriteFrame = this.currentSprite.sprite;
   }
 }

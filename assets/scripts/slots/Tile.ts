@@ -128,9 +128,8 @@ export default class Tile extends Component {
                   this.setToken(this.tokenData.tokenIndex);
         }
   }
-  stopSpinning(resultTokenIndex: number): void{
+  public stopSpinning(): void{
         this.willStopSpinning = true;
-   //this.resultToken = resultTokenIndex;
   }
  /**
   * Stop spinning procedures
@@ -144,9 +143,6 @@ export default class Tile extends Component {
       //Finish 
       const end = tween().target(this.node).by(0.2, { position: new Vec3(0, 144 * this.spinDirectionModifier, 0) }, { easing: 'bounceOut' });
 
-      //Check glow effect
-      const doCheckGlow = tween().target(this.node).call(() => this.checkGlowEffect());
-
       //Run the damn thing
       move
       .then(doChange)
@@ -154,7 +150,6 @@ export default class Tile extends Component {
       .then(doChange)
       .then(end)
       .then(doChange)
-      .then(doCheckGlow)
       .start();
   }
   checkGlowEffect(): void{

@@ -52,8 +52,9 @@ set reelPrefab(newPrefab: Prefab) {
    * Delay time between each Reel spin
    */
   @property({ type: CCFloat, range: [0.01, 0.5], slide: true })
+  private minRunTime = 2;
   private reelSpinDelaySpeed = 0.03;
-  private reels = [];
+  private reels: Reel[] = [];
   public isSpinning = false;
 
 //  /**
@@ -75,13 +76,13 @@ set reelPrefab(newPrefab: Prefab) {
   * Assign the current children to Reel list
   */
   assignChildren(): void{
-        this.reels = this.node.getComponentsInChildren("Reel");
+        this.reels = this.node.getComponentsInChildren(Reel);
 
         let i = 1;
         this.reels.forEach(reel => {
               let spinDirection = (i % 2) ? EnumSlot.Direction.Down : EnumSlot.Direction.Up;
 
-              reel.createReel(""+i+" - ", spinDirection);
+              reel.createReel(this._machineData.numberOfRows, i+" - ", spinDirection);
               i++;
         });
   }
@@ -132,7 +133,6 @@ set reelPrefab(newPrefab: Prefab) {
   spinAllReels(): void{
         for (let i = 0; i < this._machineData.numberOfReels; i ++)
         this.spinReel(i);
-
   }
  /**
   * Spins a particular Reel
@@ -146,12 +146,6 @@ set reelPrefab(newPrefab: Prefab) {
           reelNumber = this._machineData.numberOfReels - 1;
 
         this.reels[reelNumber].doSpin(this.reelSpinDelaySpeed * reelNumber);
-  }
- /**
-  * Shows the Main button with a preset "STOP" label
-  */
-  showStopButton(): void {
-      this.showButtonWithLabel("STOP");
   }
  /**
   * Shows the Main button with a preset "SPIN" label
@@ -173,6 +167,11 @@ set reelPrefab(newPrefab: Prefab) {
   disableButton(): void{
         this.button.disable();
   }
+
+  calculateSpinStopDelayTime(randomSeed: number, reelIndex: number): number{
+      return (reelIndex < 2 + randomSeed ? reelIndex / 4 : randomSeed * (reelIndex - 2) + reelIndex / 4) * 1000;
+  }
+
  /**
   * Machine spinning Stop process. Sends result information to each Reel.
   * @param result S
@@ -188,12 +187,26 @@ set reelPrefab(newPrefab: Prefab) {
 
         const rngMod = Math.random() / 2;
         for (let i = 0; i < this._machineData.numberOfReels; i += 1) {
-        const spinDelay = i < 2 + rngMod ? i / 4 : rngMod * (i - 2) + i / 4;
-        const theReel = this.reels[i];
+            const spinDelay = this.calculateSpinStopDelayTime(rngMod, i);
+            const theReel = this.reels[i];
 
-        setTimeout(() => {
-        theReel.readyStop(result.selectedTokens[i], result.winningTokens);
-        }, spinDelay * 1000);
+            setTimeout(() => {
+                  theReel.readyStop(result.selectedTokens[i], result.winningTokens);
+            }, spinDelay);
         }
+
+        var theMachine = this;
+        setTimeout(() => {
+            theMachine.showGlowingTiles();
+        }, this.calculateSpinStopDelayTime(rngMod, this._machineData.numberOfReels));
+  }
+
+  showGlowingTiles(){
+      for (let i = 0; i < this._machineData.numberOfReels; i += 1) {
+            const theReel = this.reels[i];
+
+            theReel.showGlowingTiles();
+      }
+
   }
 }

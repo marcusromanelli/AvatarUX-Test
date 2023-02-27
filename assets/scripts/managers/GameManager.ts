@@ -70,13 +70,8 @@ export default class GameManager extends Component {
  * Default button behaviour. Sets a Start or Stop signal to the Machine, depending on the current status
  */
   clickButton(): void {
-        //this.audioSource.playEffect(this.audioClick, false);
-
-        if(this.machine.isSpinning){
-            this.stop();
-        }else{
+      if(!this.machine.isSpinning)
             this.roll();
-        }
   }
 /**
  * Sends a Stop signal to the Machine class and inform the received result
@@ -102,7 +97,11 @@ export default class GameManager extends Component {
             this.refreshUserData(result.newUserData);
             this.result = result;
             this.machine.spin();
-            this.machine.showStopButton();
+            
+            let gm = this;
+            setTimeout(() => {
+                  this.stop();
+            }, this.machine.minRunTime * 1000);
         });
   }
 /**

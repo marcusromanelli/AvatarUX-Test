@@ -5,6 +5,7 @@ import Slot from "../enumerators/SlotDirection";
 import ResultData from "../structs/ResultData";
 import ResultReel from "../structs/ResultReel";
 import TokenData from "../structs/TokenData";
+import Tile from './Tile';
 
 @ccclass('Reel')
 export default class Reel extends Component {
@@ -31,7 +32,7 @@ export default class Reel extends Component {
  * Reel tiles array
  */
   @property({ type: [Node], visible: false })
-  private tiles = [];
+  private tiles: Tile[] = [];
 
 /**
  * Reel Tile prefab
@@ -57,7 +58,7 @@ export default class Reel extends Component {
                   this.instantiateTile();
             }
         }else{
-            this.tiles = this.getComponentsInChildren("Tile");
+            this.tiles = this.getComponentsInChildren(Tile);
         }
 
         this.tiles.forEach(tile => {
@@ -71,7 +72,7 @@ export default class Reel extends Component {
 /** Instantiate a single Tile */
   instantiateTile(): void{
         let newTileObject = instantiate(this.tilePrefab);
-        let newTile = newTileObject.getComponent("Tile");
+        let newTile = newTileObject.getComponent(Tile);
 
         this.tiles.push(newTile);
 
@@ -117,7 +118,7 @@ export default class Reel extends Component {
  */
   stopSpinning(): void{
         for(let i = 0; i < this.tiles.length; i++)
-        this.tiles[i].stopSpinning();
+            this.tiles[i].stopSpinning();
   }
 /**
  * Returns if server has returned a result
@@ -130,5 +131,10 @@ export default class Reel extends Component {
  */
   requestResult(): TokenData{
         return this.resultData.getNextToken();
+  }
+
+  showGlowingTiles(){
+      for(let i = 0; i < this.tiles.length; i++)
+            this.tiles[i].checkGlowEffect();
   }
 }

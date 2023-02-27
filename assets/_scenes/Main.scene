@@ -402,7 +402,7 @@
     "widget": {
       "__id__": 47
     },
-    "reelSpinDelaySpeed": 0.03,
+    "minRunTime": 2,
     "_id": "93DHaRJ7RFb4k69d6Ce7Y6"
   },
   {

@@ -1,4 +1,4 @@
-import { _decorator, Component, AudioClip, AudioSource } from 'cc';
+import { _decorator, Component, AudioClip, AudioSource, Button } from 'cc';
 const { ccclass, property } = _decorator;
 
 import Machine from "../slots/Machine";
@@ -14,22 +14,27 @@ export default class GameManager extends Component {
    * Rest component
    */
   @property(RestManager)
-  restManager = null;
+  restManager: RestManager = null;
   /**
     * User manager component
     */
    @property(User)
-   user = null;
+   user: User = null;
  /**
    * Main Machine component
    */
   @property(Machine)
-  machine = null;
+  machine: Machine = null;
  /**
    * Audio component
    */
   @property(AudioSource)
-  audioSource = null;
+  audioSource: AudioSource = null;
+ /**
+ * Auto play button
+ */
+  @property({ type: Button })
+  autoPlayButton: Button = null;
  /**
  * Button click asset
  * TODO: A SoundManager class should exist to manage such things
@@ -39,18 +44,19 @@ export default class GameManager extends Component {
 
 
   private result: ResultData = null;
+  private isAutoPlay = false;
 
   start(): void{
       this.initialize();
   }
 
   initialize(): void{
-      this.restManager.requestMachineData(this.machine.machineId, this.answerResult, this.answerError)
+      this.restManager.requestMachineData(this.machine.machineId)
       .then(result => {
             this.initializeMachine(result)
       });
       
-      this.restManager.requestUserData(this.user, this.answerResult, this.answerError)
+      this.restManager.requestUserData(this.user)
       .then(result => {
             this.refreshUserData(result)
       });
@@ -73,6 +79,13 @@ export default class GameManager extends Component {
       if(!this.machine.isSpinning)
             this.roll();
   }
+  toggleAutoPlay(): void{
+      this.isAutoPlay = !this.isAutoPlay;
+
+      this.machine.setAutoPlay(this.isAutoPlay);
+
+      this.clickButton();
+  }
 /**
  * Sends a Stop signal to the Machine class and inform the received result
  */
@@ -80,7 +93,12 @@ export default class GameManager extends Component {
         if (this.result == null)
         return;
 
-        this.machine.stop(this.result);
+        var manager = this;
+
+        this.machine.stop(this.result, () => {
+            if(manager.isAutoPlay)
+                  manager.clickButton();
+        });
         this.result = null;
   }
 /**
@@ -110,28 +128,9 @@ export default class GameManager extends Component {
   async requestResult(onResult): Promise<void> {
         this.result = null;
 
-        this.restManager.requestReelResult(this.user.id, this.machine.machineId, this.answerResult, this.answerError)
+        this.restManager.requestReelResult(this.user.id, this.machine.machineId)
         .then(result => {
             onResult(result);
         });
-  }
-  answerError(): any{
-  //In case of endpoint error, we will just return random tiles.
-        this.machine.showStopButton();
-        this.result = null;
-  }
-/**
- * Send server requisition to receive new results
- */
-  answerResult(answerResult): void {
-  /*const slotResult = [];
-
-  //This will be an server answer?
-  //Assuming yes
-        return new Promise<Array<Array<number>>>(resolve => {
-        setTimeout(() => {
-        resolve(slotResult);
-        }, 1000 + 500 * Math.random());
-        });*/
   }
 }

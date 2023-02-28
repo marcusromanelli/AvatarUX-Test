@@ -15,10 +15,15 @@ export default class Machine extends Component {
 @property(CCString)
 public machineId = "machine_test_identification";
 //  /**
-//   * Spin button component
+//   * Bet value component
 //   */
 @property(Label)
 public betValueLabel = null;
+//  /**
+//   * Auto play component
+//   */
+@property(Label)
+public autoPlaylabel = null;
 //  /**
 //   * Spin button component
 //   */
@@ -51,10 +56,12 @@ set reelPrefab(newPrefab: Prefab) {
    * Delay time between each Reel spin
    */
   @property({ type: CCFloat, range: [0.01, 0.5], slide: true })
-  private minRunTime = 2;
+  public minRunTime = 2;
   private reelSpinDelaySpeed = 0.03;
   private reels: Reel[] = [];
   public isSpinning = false;
+  private onFinishStop;
+  private isAutoPlay = false;
 
 //  /**
 //   * initializes the machine state. If machine was already initialized, just reassign the generated Reels
@@ -157,7 +164,9 @@ set reelPrefab(newPrefab: Prefab) {
   * @param label The desirable text
   */
   showButtonWithLabel(label): void{
-      this.button.enable();
+      if(!this.isAutoPlay)
+            this.button.enable();
+
       this.button.setLabel(label);
   }
  /**
@@ -170,12 +179,20 @@ set reelPrefab(newPrefab: Prefab) {
   calculateSpinStopDelayTime(randomSeed: number, reelIndex: number): number{
       return (reelIndex < 2 + randomSeed ? reelIndex / 4 : randomSeed * (reelIndex - 2) + reelIndex / 4) * 1000;
   }
+  setAutoPlay(value: boolean): void{
+      if(value)
+            this.disableButton();
+            
+      this.isAutoPlay = value;
+
+      this.autoPlaylabel.string = value ? "AUTOPLAY ON" : "" ;
+  }
 
  /**
   * Machine spinning Stop process. Sends result information to each Reel.
   * @param result S
   */
-  stop(result: ResultData = null): void {
+  stop(result: ResultData = null, onFinishStop): void {
         this.disableButton();
 
         const rngMod = Math.random() / 2;
@@ -200,6 +217,14 @@ set reelPrefab(newPrefab: Prefab) {
         setTimeout(() => {
             theMachine.showGlowingTiles();
         }, buttonDelay);
+
+        theMachine.onFinishStop = onFinishStop
+        setTimeout(() => {
+            if(theMachine.onFinishStop != null){
+                  theMachine.onFinishStop();
+                  theMachine.onFinishStop = null;
+            }
+        }, buttonDelay + 500);
   }
 
   showGlowingTiles(){

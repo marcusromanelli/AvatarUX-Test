@@ -4,10 +4,12 @@ const {ccclass, property} = _decorator;
 import ResultData from "../structs/ResultData";
 import MachineData from '../structs/MachineData';
 import UserData from '../structs/UserData';
+import TokenPossibility from '../structs/Possibility';
 
-export class ChosenRowData{
+export class WinData{
     public rowIndex: number = 0;
-    public tokenIndex: string = "";
+    public tokenIndex: TokenPossibility;
+    public value = 0;
 }
 
 class RowTokenUse{
@@ -49,7 +51,7 @@ export default class Server extends Component{
         return this._machines[machineId];
     }
 
-    FindTokenByPercentage(currentMachine: MachineData): string{
+    FindTokenByPercentage(currentMachine: MachineData): TokenPossibility{
         let tokens = currentMachine.resultPossibilities.possibilities;
         const totalPercentage = tokens.reduce((acc, token) => acc + token.percentage, 0);
         let randomNum = Math.floor(Math.random() * totalPercentage);
@@ -57,7 +59,7 @@ export default class Server extends Component{
         for (const token of tokens) {
             randomNum -= token.percentage;
             if (randomNum < 0) {
-                return token.token;
+                return token;
             }
         }
 
@@ -65,17 +67,17 @@ export default class Server extends Component{
         throw new Error("Could not choose a token");
         
     }
-    GetRandomToken(currentMachine: MachineData, usedTokens: RowTokenUse): string{
-        let tokenKey;
+    GetRandomToken(currentMachine: MachineData, usedTokens: RowTokenUse): TokenPossibility{
+        let token: TokenPossibility;
         let canFinish = false;
 
         while(!canFinish){            
-            tokenKey = this.FindTokenByPercentage(currentMachine);
+            token = this.FindTokenByPercentage(currentMachine);
 
-            canFinish = usedTokens == null || usedTokens != null && usedTokens.usedTokens.filter(value => value == tokenKey).length <= 0;
+            canFinish = usedTokens == null || usedTokens != null && usedTokens.usedTokens.filter(value => value == token.id).length <= 0;
         }
 
-        return tokenKey;
+        return token;
     }
     /**
     * Generate the resulting number array for display
@@ -98,14 +100,15 @@ export default class Server extends Component{
         finalResultData.selectedTokens = [];
         finalResultData.newUserData = user;
 
-        let winningData: ChosenRowData[] = [];
+        let winningData: WinData[] = [];
         let usedTokensPerReel: { [rowNumber: number] : RowTokenUse; } = {};
 
         for(let row = 0; row < currentMachine.numberOfRows; row++){
-            let lastChosenToken = { id: "", count: 0};
+            let lastChosenToken = { token: new TokenPossibility, count: 0};
 
             for(let reel = 0; reel < currentMachine.numberOfReels; reel++){
                 let randomToken = this.GetRandomToken(currentMachine, usedTokensPerReel[reel]);
+                let tokenKey = randomToken.id;
 
                 /*if((row == 0 && reel == 0) || (row == 0 && reel == 1) || (row == 0 && reel == 2)){
                     randomToken = 0;
@@ -115,7 +118,7 @@ export default class Server extends Component{
                     usedTokensPerReel[reel] = { usedTokens: []};                    
                 }
 
-                usedTokensPerReel[reel].usedTokens.push(randomToken);
+                usedTokensPerReel[reel].usedTokens.push(tokenKey);
 
 
                 if(finalResultData.selectedTokens.length < reel)
@@ -124,15 +127,15 @@ export default class Server extends Component{
                 if(finalResultData.selectedTokens[reel] == null)
                     finalResultData.selectedTokens[reel] = [];
 
-                finalResultData.selectedTokens[reel].push(randomToken);
+                finalResultData.selectedTokens[reel].push(tokenKey);
 
-                if(lastChosenToken.id == randomToken){
+                if(lastChosenToken.token.id == tokenKey){
                     lastChosenToken.count++;
                     
                     if(lastChosenToken.count >= 3)
-                        winningData[row] = { rowIndex: row, tokenIndex: lastChosenToken.id };
+                        winningData[row] = { rowIndex: row, tokenIndex: lastChosenToken.token, value: lastChosenToken.count * lastChosenToken.token.value  };
                 }else{
-                    lastChosenToken.id = randomToken;
+                    lastChosenToken.token = randomToken;
                     lastChosenToken.count = 1;
                 }
             }

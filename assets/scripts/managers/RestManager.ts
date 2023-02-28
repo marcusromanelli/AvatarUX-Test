@@ -5,6 +5,7 @@ import Server from "./Server";
 import ResultData from "../structs/ResultData";
 import MachineData from "../structs/MachineData";
 import UserData from '../structs/UserData';
+import User from './User';
 
 @ccclass('RestManager')
 export default class RestManager extends Component {
@@ -21,7 +22,7 @@ export default class RestManager extends Component {
         return returnPromise;
     }
 
-    requestUserData(userData: UserData): Promise<UserData>{
+    requestUserData(userData: User): Promise<UserData>{
         let returnPromise = new Promise<UserData>(resolve => {
             var data = userData == null ? null : userData.id;
             resolve(this.server.GetUserData(data));

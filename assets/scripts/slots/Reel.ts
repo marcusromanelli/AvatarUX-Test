@@ -2,7 +2,7 @@ import { _decorator, Component, Node, Layout, Enum, Prefab, instantiate } from '
 const { ccclass, property } = _decorator;
 
 import Slot from "../enumerators/SlotDirection";
-import { ChosenRowData } from '../managers/Server';
+import { WinData } from '../managers/Server';
 import ResultData from "../structs/ResultData";
 import ResultReel from "../structs/ResultReel";
 import TokenData from "../structs/TokenData";
@@ -94,11 +94,12 @@ export default class Reel extends Component {
  * Signals the Reel to stop spinning and show the received result
  * @param newResult Reel result
  */
-  readyStop(newResult: Array<string>, winningTokens: ChosenRowData[]): void {
+  readyStop(newResult: Array<string>, winningTokens: WinData[]): void {
         const check = this.spinDirection === Slot.Direction.Down || newResult == null;
 
         this.resultData = new ResultReel;
         this.resultData.selectedTokens = check ? newResult : newResult.reverse();
+        this.resultData.winningTokens = winningTokens;
 
         this.stopSpinning();
   }

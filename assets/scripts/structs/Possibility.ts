@@ -4,9 +4,9 @@ const {ccclass, property} = _decorator;
 
 // //This should be a struct, but since we don't have it...
 
-@ccclass('Possibility')
-export default class Possibility{
-    token = "";
+@ccclass('TokenPossibility')
+export default class TokenPossibility{
+    id = "";
     percentage = 0;
     value = 0;
 }

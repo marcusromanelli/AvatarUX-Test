@@ -3,10 +3,26 @@
   "builder": {
     "common": {
       "buildPath": "D:\\Google Drive\\Projects\\Tests\\Avatar-UXTest\\AvatarUX-Test-GIT\\",
-      "outputName": "Build"
+      "outputName": "docs"
     },
     "taskOptionsMap": {
       "1677596009034": {
+        "useWebGPU": false,
+        "resolution": {
+          "designWidth": 1280,
+          "designHeight": 960
+        },
+        "__version__": "1.0.1"
+      },
+      "1677606575114": {
+        "useWebGPU": false,
+        "resolution": {
+          "designWidth": 1280,
+          "designHeight": 960
+        },
+        "__version__": "1.0.1"
+      },
+      "1677606706518": {
         "useWebGPU": false,
         "resolution": {
           "designWidth": 1280,

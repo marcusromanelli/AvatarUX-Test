@@ -49,9 +49,7 @@ export default class Tile extends Component {
         });
   }*/
   setToken(index: number): void {
-      var safeIndex = index % this.textures.length;
-
-      this.currentSprite =  this.textures[safeIndex];
+      this.currentSprite =  this.textures[index];
 
       this.sprite.spriteFrame = this.currentSprite.sprite;
   }

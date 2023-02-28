@@ -1,4 +1,5 @@
 import { _decorator } from 'cc';
+import { ChosenRowData } from '../managers/Server';
 const {ccclass, property} = _decorator;
 
 import TokenData from "./TokenData";
@@ -6,9 +7,10 @@ import TokenData from "./TokenData";
 @ccclass('ResultReel')
 export default class ResultReel {
     public selectedTokens: Array<number> = null;
-    public winningTokens: Array<number> = null;
+    public winningTokens: ChosenRowData[] = null;
+
     isTokenWinning(tokenIndex: number): boolean{
-         return this.winningTokens.filter(winningTokenIndex => winningTokenIndex == tokenIndex).length > 0;
+         return this.winningTokens.filter(winningTokenIndex => winningTokenIndex.tokenIndex == tokenIndex).length > 0;
     }
     getNextToken(): TokenData{
         let tokenData = new TokenData;

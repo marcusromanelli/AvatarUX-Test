@@ -4,7 +4,6 @@ const { ccclass, property } = _decorator;
 import SpinButton from '../ui/SpinButton';
 import Reel from './Reel';
 import EnumSlot from '../enumerators/SlotDirection';
-import ResultPossibilities from '../structs/ResultPossibilities';
 import ResultData from '../structs/ResultData';
 import MachineData from '../structs/MachineData';
 
@@ -179,13 +178,15 @@ set reelPrefab(newPrefab: Prefab) {
   stop(result: ResultData = null): void {
         this.disableButton();
 
+        const rngMod = Math.random() / 2;
+        let buttonDelay = this.calculateSpinStopDelayTime(rngMod, this._machineData.numberOfReels);
+
         setTimeout(() => {
         this.isSpinning = false;
 
         this.showSpinButton();
-        }, 2500);
+        }, buttonDelay);
 
-        const rngMod = Math.random() / 2;
         for (let i = 0; i < this._machineData.numberOfReels; i += 1) {
             const spinDelay = this.calculateSpinStopDelayTime(rngMod, i);
             const theReel = this.reels[i];
@@ -198,7 +199,7 @@ set reelPrefab(newPrefab: Prefab) {
         var theMachine = this;
         setTimeout(() => {
             theMachine.showGlowingTiles();
-        }, this.calculateSpinStopDelayTime(rngMod, this._machineData.numberOfReels));
+        }, buttonDelay);
   }
 
   showGlowingTiles(){

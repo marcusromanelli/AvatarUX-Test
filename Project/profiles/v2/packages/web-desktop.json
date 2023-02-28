@@ -1,0 +1,20 @@
+{
+  "__version__": "1.0.1",
+  "builder": {
+    "common": {
+      "buildPath": "D:\\Google Drive\\Projects\\Tests\\Avatar-UXTest\\AvatarUX-Test-GIT\\",
+      "outputName": "Build"
+    },
+    "taskOptionsMap": {
+      "1677596009034": {
+        "useWebGPU": false,
+        "resolution": {
+          "designWidth": 1280,
+          "designHeight": 960
+        },
+        "__version__": "1.0.1"
+      }
+    },
+    "__version__": "1.3.4"
+  }
+}

@@ -14,9 +14,9 @@ export default class RestManager extends Component {
     public server: Server = null;
 
     
-    requestReelResult(userId: string, machineId: string): Promise<ResultData>{
+    requestReelResult(userId: string, machineId: string, isAlwaysWinning: boolean): Promise<ResultData>{
         let returnPromise = new Promise<ResultData>(resolve => {
-            resolve(this.server.GetMachineResult(userId, machineId));
+            resolve(this.server.GetMachineResult(userId, machineId, isAlwaysWinning));
         });
 
         return returnPromise;

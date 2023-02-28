@@ -30,11 +30,16 @@ export default class GameManager extends Component {
    */
   @property(AudioSource)
   audioSource: AudioSource = null;
- /**
- * Auto play button
- */
-  @property({ type: Button })
-  autoPlayButton: Button = null;
+  /**
+  * Auto play button
+  */
+   @property({ type: Button })
+   autoPlayButton: Button = null;
+   /**
+   * alwaysWinButton button
+   */
+    @property({ type: Button })
+    alwaysWinButton: Button = null;
  /**
  * Button click asset
  * TODO: A SoundManager class should exist to manage such things
@@ -45,6 +50,7 @@ export default class GameManager extends Component {
 
   private result: ResultData = null;
   private isAutoPlay = false;
+  private isAlwaysWinning = false;
 
   start(): void{
       this.initialize();
@@ -85,6 +91,9 @@ export default class GameManager extends Component {
       this.machine.setAutoPlay(this.isAutoPlay);
 
       this.clickButton();
+  }
+  toggleAlwaysWinButton(): void{
+      this.isAlwaysWinning = !this.isAlwaysWinning;
   }
 /**
  * Sends a Stop signal to the Machine class and inform the received result
@@ -128,7 +137,7 @@ export default class GameManager extends Component {
   async requestResult(onResult): Promise<void> {
         this.result = null;
 
-        this.restManager.requestReelResult(this.user.id, this.machine.machineId)
+        this.restManager.requestReelResult(this.user.id, this.machine.machineId, this.isAlwaysWinning)
         .then(result => {
             onResult(result);
         });

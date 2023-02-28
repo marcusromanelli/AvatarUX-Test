@@ -12,8 +12,8 @@ export default class ResultReel {
     isTokenWinning(tokenIndex: string, currentReel: number): WinData{
         if(this.winningTokens == null)
             return null
-            
-        let data = this.winningTokens.find(WinData => WinData.token.id == tokenIndex && currentReel >= WinData.startsAt);
+
+        let data = this.winningTokens.find(WinData => WinData != null && WinData.token.id == tokenIndex && currentReel >= WinData.startsAt);
 
         if(data == null)
             return null;

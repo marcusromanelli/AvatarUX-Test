@@ -97,7 +97,7 @@ export default class Server extends Component{
     * Generate the resulting number array for display
     * @param machineNumber 
     */
-    public GetMachineResult(userId: string, machineNumber: string): ResultData{
+    public GetMachineResult(userId: string, machineNumber: string, isAlwaysWinning: boolean): ResultData{
         let user = this.GetUserData(userId);
         let currentMachine = this.GetMachineData(machineNumber);
 
@@ -124,10 +124,10 @@ export default class Server extends Component{
                 let randomToken = this.GetRandomToken(currentMachine, usedTokensPerReel[reel]);
                 let tokenKey = randomToken.id;
 
-                /*if((row == 0 && reel == 0) || (row == 0 && reel == 2) || (row == 0 && reel == 3) || (row == 0 && reel == 4)){
-                    randomToken = this.FindTokenById(currentMachine, "9");
+                if(isAlwaysWinning && ((row == 1 && reel == 0) || (row == 1 && reel == 1) || (row == 1 && reel == 2) || (row == 1 && reel == 3) || (row == 1 && reel == 4))){
+                    randomToken = this.FindTokenById(currentMachine, "H3");
                     tokenKey = randomToken.id;
-                }*/
+                }
 
                 if(!(reel in usedTokensPerReel)){
                     usedTokensPerReel[reel] = { usedTokens: []};                    

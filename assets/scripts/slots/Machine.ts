@@ -1,4 +1,4 @@
-import { _decorator, Component, Prefab, Widget, CCInteger, CCFloat, instantiate, CCString, Label } from 'cc';
+import { _decorator, Component, Prefab, Widget, CCInteger, CCFloat, instantiate, CCString, Label, tween, Tween } from 'cc';
 const { ccclass, property } = _decorator;
 
 import SpinButton from '../ui/SpinButton';
@@ -39,6 +39,11 @@ public _reelPrefab = null;
 //   */
 @property(Widget)
 public widget = null;
+//  /**
+//   * Celebration component
+//   */
+@property(Label)
+public celebration = null;
 @property({ type: Prefab })
 get reelPrefab(): Prefab {
       return this._reelPrefab;
@@ -182,7 +187,7 @@ set reelPrefab(newPrefab: Prefab) {
   setAutoPlay(value: boolean): void{
       if(value)
             this.disableButton();
-            
+
       this.isAutoPlay = value;
 
       this.autoPlaylabel.string = value ? "AUTOPLAY ON" : "" ;
@@ -192,16 +197,14 @@ set reelPrefab(newPrefab: Prefab) {
   * Machine spinning Stop process. Sends result information to each Reel.
   * @param result S
   */
-  stop(result: ResultData = null, onFinishStop): void {
+  stop(result: ResultData, onFinishStop): void {
         this.disableButton();
 
         const rngMod = Math.random() / 2;
         let buttonDelay = this.calculateSpinStopDelayTime(rngMod, this._machineData.numberOfReels);
 
         setTimeout(() => {
-        this.isSpinning = false;
-
-        this.showSpinButton();
+            this.isSpinning = false;
         }, buttonDelay);
 
         for (let i = 0; i < this._machineData.numberOfReels; i += 1) {
@@ -213,20 +216,37 @@ set reelPrefab(newPrefab: Prefab) {
             }, spinDelay);
         }
 
-        var theMachine = this;
-        setTimeout(() => {
-            theMachine.showGlowingTiles();
-        }, buttonDelay);
-
-        theMachine.onFinishStop = onFinishStop
-        setTimeout(() => {
-            if(theMachine.onFinishStop != null){
-                  theMachine.onFinishStop();
-                  theMachine.onFinishStop = null;
-            }
-        }, buttonDelay + 500);
+        this.showCelebration(result, buttonDelay, onFinishStop);
   }
+  showCelebration(result: ResultData, buttonDelay: number, onFinishStop){
+      var tryCelebrationLabel: Tween<unknown>;
+      
+      if(result.hasPrize())
+            tryCelebrationLabel = tween().target(this.celebration).call(() => { this.showCelebrationLabel(result.totalPrize); } ).delay(2.5).call(() => { this.hideCelebrationLabel(); });
+      else
+            tryCelebrationLabel = tween().target(this.node).delay(0.25);
 
+      tween()
+      .target(this.node)
+      .delay(buttonDelay/1000)
+      .call(() => {
+            this.showGlowingTiles();
+      })
+      .delay(0.5)
+      .then(tryCelebrationLabel)
+      .call(() => {
+            this.showSpinButton();
+
+            if(onFinishStop != null)
+                  onFinishStop();
+      }).start();
+  }
+  showCelebrationLabel(value: number){
+      this.celebration.string = "WON $ " + value;
+  }
+  hideCelebrationLabel(){
+      this.celebration.string = "";
+  }
   showGlowingTiles(){
       for (let i = 0; i < this._machineData.numberOfReels; i += 1) {
             const theReel = this.reels[i];

@@ -51,6 +51,12 @@ export default class Server extends Component{
         return this._machines[machineId];
     }
 
+    FindTokenById(currentMachine: MachineData, id: string): TokenPossibility{
+        let tokens = currentMachine.resultPossibilities.possibilities;
+
+        return tokens.find(token => token.id == id);        
+    }
+
     FindTokenByPercentage(currentMachine: MachineData): TokenPossibility{
         let tokens = currentMachine.resultPossibilities.possibilities;
         const totalPercentage = tokens.reduce((acc, token) => acc + token.percentage, 0);
@@ -111,7 +117,8 @@ export default class Server extends Component{
                 let tokenKey = randomToken.id;
 
                 /*if((row == 0 && reel == 0) || (row == 0 && reel == 1) || (row == 0 && reel == 2)){
-                    randomToken = 0;
+                    randomToken = this.FindTokenById(currentMachine, "9");
+                    tokenKey = randomToken.id;
                 }*/
 
                 if(!(reel in usedTokensPerReel)){
@@ -142,6 +149,21 @@ export default class Server extends Component{
         }
 
         finalResultData.winningTokens = winningData;
+
+        if(finalResultData.hasPrize()){
+            let totalPrize = 0;
+
+            finalResultData.winningTokens.forEach(element => {
+                totalPrize += element.value;
+            })
+
+            totalPrize = totalPrize * currentMachine.betValue;
+
+            finalResultData.totalPrize = totalPrize;
+
+
+            user.wallet += totalPrize;
+        }
 
         return finalResultData;
     }

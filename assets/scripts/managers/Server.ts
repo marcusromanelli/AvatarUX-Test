@@ -7,11 +7,11 @@ import UserData from '../structs/UserData';
 
 export class ChosenRowData{
     public rowIndex: number = 0;
-    public tokenIndex: number = 0;
+    public tokenIndex: string = "";
 }
 
 class RowTokenUse{
-    public usedTokens: number[] = [];
+    public usedTokens: string[] = [];
 }
 
 //NOT OPTIMAL IMPLEMENTATION
@@ -49,17 +49,33 @@ export default class Server extends Component{
         return this._machines[machineId];
     }
 
-    GetRandomToken(currentMachine: MachineData, usedTokens: RowTokenUse): number{
-        let finalNumber = -1;
+    FindTokenByPercentage(currentMachine: MachineData): string{
+        let tokens = currentMachine.resultPossibilities.possibilities;
+        const totalPercentage = tokens.reduce((acc, token) => acc + token.percentage, 0);
+        let randomNum = Math.floor(Math.random() * totalPercentage);
+        
+        for (const token of tokens) {
+            randomNum -= token.percentage;
+            if (randomNum < 0) {
+                return token.token;
+            }
+        }
+
+        // This should never be reached, but just in case:
+        throw new Error("Could not choose a token");
+        
+    }
+    GetRandomToken(currentMachine: MachineData, usedTokens: RowTokenUse): string{
+        let tokenKey;
         let canFinish = false;
 
         while(!canFinish){            
-            finalNumber = Math.floor(Math.random() * (currentMachine.numberOfTokens - currentMachine.numberOfRows + 1) + currentMachine.numberOfRows)
+            tokenKey = this.FindTokenByPercentage(currentMachine);
 
-            canFinish = usedTokens == null || usedTokens != null && usedTokens.usedTokens.filter(value => value == finalNumber).length <= 0;
+            canFinish = usedTokens == null || usedTokens != null && usedTokens.usedTokens.filter(value => value == tokenKey).length <= 0;
         }
 
-        return finalNumber;
+        return tokenKey;
     }
     /**
     * Generate the resulting number array for display
@@ -86,7 +102,7 @@ export default class Server extends Component{
         let usedTokensPerReel: { [rowNumber: number] : RowTokenUse; } = {};
 
         for(let row = 0; row < currentMachine.numberOfRows; row++){
-            let lastChosenToken = { id: -1, count: 0};
+            let lastChosenToken = { id: "", count: 0};
 
             for(let reel = 0; reel < currentMachine.numberOfReels; reel++){
                 let randomToken = this.GetRandomToken(currentMachine, usedTokensPerReel[reel]);

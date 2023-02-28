@@ -4,5 +4,5 @@ const {ccclass, property} = _decorator;
 @ccclass('TokenData')
 export default class TokenData {
     public isWinner:boolean;
-    public tokenIndex: number;
+    public tokenIndex: string;
 }

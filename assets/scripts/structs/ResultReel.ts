@@ -6,17 +6,17 @@ import TokenData from "./TokenData";
 
 @ccclass('ResultReel')
 export default class ResultReel {
-    public selectedTokens: Array<number> = null;
-    public winningTokens: ChosenRowData[] = null;
+    public selectedTokens: Array<string> = null;
+    //public winningTokens: ChosenRowData[] = null;
 
-    isTokenWinning(tokenIndex: number): boolean{
-         return this.winningTokens.filter(winningTokenIndex => winningTokenIndex.tokenIndex == tokenIndex).length > 0;
-    }
+    //isTokenWinning(tokenIndex: number): boolean{
+    //     return this.winningTokens.filter(winningTokenIndex => winningTokenIndex.tokenIndex == tokenIndex).length > 0;
+    //}
     getNextToken(): TokenData{
         let tokenData = new TokenData;
 
         tokenData.tokenIndex = this.selectedTokens.pop();
-        tokenData.isWinner = this.isTokenWinning(tokenData.tokenIndex);
+        //tokenData.isWinner = this.isTokenWinning(tokenData.tokenIndex);
 
         return tokenData;
     }

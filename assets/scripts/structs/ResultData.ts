@@ -5,7 +5,7 @@ const {ccclass, property} = _decorator;
 
 @ccclass('ResultData')
 export default class ResultData {
-    public selectedTokens: Array<Array<number>> = null;
+    public selectedTokens: Array<Array<string>> = null;
     public winningTokens: ChosenRowData[] = null;
     public newUserData: UserData = null;
 }

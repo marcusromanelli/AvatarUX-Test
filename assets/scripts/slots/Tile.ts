@@ -10,7 +10,7 @@ import TokenIcon from '../structs/TokenIcon';
 @ccclass('Tile')
 export default class Tile extends Component {
   @property({ type: [TokenIcon], visible: true })
-  private textures = [];
+  private textures: TokenIcon[] = [];
 
   @property({ type: AudioSource })
   private audioSource = null;
@@ -31,31 +31,15 @@ export default class Tile extends Component {
         this.parentReel = parentReel;
         this.disableGlowEffect();
   }
-  /*async onLoad(): Promise<void> {
-        await this.loadTextures();
-  }
-  async resetInEditor(): Promise<void> {
-        await this.loadTextures();
-        this.setRandom();
-  }
-  async loadTextures(): Promise<boolean> {
-        const tile = this;
-
-        return new Promise<boolean>(resolve => {
-            resources.load("gfx/Square", SpriteFrame, (err, loadedTextures) => {
-                  tile.textures = loadedTextures;
-                  resolve(true);
-            });
-        });
-  }*/
-  setToken(index: number): void {
-      this.currentSprite =  this.textures[index];
+  setToken(key: string): void {
+      this.currentSprite =  this.textures.find(tex => tex.id == key);
 
       this.sprite.spriteFrame = this.currentSprite.sprite;
   }
   setRandom(): void {
         const randomIndex = Math.floor(Math.random() * this.textures.length);
-        this.setToken(randomIndex);
+
+        this.setToken(this.textures[randomIndex].id);
   }
   startSpinning(spinDirectionModifier: number, startDelayTime: number): void{
       this.tokenData = null;

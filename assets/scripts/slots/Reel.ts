@@ -94,12 +94,11 @@ export default class Reel extends Component {
  * Signals the Reel to stop spinning and show the received result
  * @param newResult Reel result
  */
-  readyStop(newResult: Array<number>, winningTokens: ChosenRowData[]): void {
+  readyStop(newResult: Array<string>, winningTokens: ChosenRowData[]): void {
         const check = this.spinDirection === Slot.Direction.Down || newResult == null;
 
         this.resultData = new ResultReel;
         this.resultData.selectedTokens = check ? newResult : newResult.reverse();
-        this.resultData.winningTokens = winningTokens;
 
         this.stopSpinning();
   }

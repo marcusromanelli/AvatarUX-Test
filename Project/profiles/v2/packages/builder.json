@@ -5,7 +5,7 @@
   },
   "common": {
     "buildPath": "D:\\Google Drive\\Projects\\Tests\\Avatar-UXTest\\AvatarUX-Test-GIT\\",
-    "outputName": "Build"
+    "outputName": "docs"
   },
   "BuildTaskManager": {
     "taskMap": {
@@ -47,6 +47,86 @@
           "__version__": "1.3.4"
         },
         "time": "2-28-2023 11:53",
+        "dirty": false
+      },
+      "1677606575114": {
+        "type": "build",
+        "id": "1677606575114",
+        "progress": 1,
+        "state": "success",
+        "stage": "build",
+        "message": "2-28-2023 14:49:56 Build success in 21051 ms!",
+        "options": {
+          "name": "AvatarUX-Test",
+          "platform": "web-desktop",
+          "buildPath": "D:\\Google Drive\\Projects\\Tests\\Avatar-UXTest\\AvatarUX-Test-GIT\\",
+          "debug": false,
+          "md5Cache": false,
+          "skipCompressTexture": false,
+          "sourceMaps": false,
+          "polyfills": {
+            "asyncFunctions": true
+          },
+          "experimentalEraseModules": false,
+          "useBuiltinServer": false,
+          "mainBundleIsRemote": false,
+          "mainBundleCompressionType": "merge_dep",
+          "useSplashScreen": true,
+          "packAutoAtlas": true,
+          "startScene": "c0008a8c-b2eb-4a68-9ead-e125c4e88fa5",
+          "outputName": "web-desktop",
+          "scenes": [
+            {
+              "url": "db://assets/_scenes/Main.scene",
+              "uuid": "c0008a8c-b2eb-4a68-9ead-e125c4e88fa5",
+              "inBundle": false
+            }
+          ],
+          "web-desktop": [],
+          "packages": {},
+          "__version__": "1.3.4"
+        },
+        "time": "2-28-2023 14:49",
+        "dirty": false
+      },
+      "1677606706518": {
+        "type": "build",
+        "id": "1677606706518",
+        "progress": 0.4333333333333333,
+        "state": "processing",
+        "stage": "build",
+        "message": "Build project script start...",
+        "options": {
+          "name": "AvatarUX-Test",
+          "platform": "web-desktop",
+          "buildPath": "D:\\Google Drive\\Projects\\Tests\\Avatar-UXTest\\AvatarUX-Test-GIT\\",
+          "debug": false,
+          "md5Cache": false,
+          "skipCompressTexture": false,
+          "sourceMaps": false,
+          "polyfills": {
+            "asyncFunctions": true
+          },
+          "experimentalEraseModules": false,
+          "useBuiltinServer": false,
+          "mainBundleIsRemote": false,
+          "mainBundleCompressionType": "merge_dep",
+          "useSplashScreen": true,
+          "packAutoAtlas": true,
+          "startScene": "c0008a8c-b2eb-4a68-9ead-e125c4e88fa5",
+          "outputName": "docs",
+          "scenes": [
+            {
+              "url": "db://assets/_scenes/Main.scene",
+              "uuid": "c0008a8c-b2eb-4a68-9ead-e125c4e88fa5",
+              "inBundle": false
+            }
+          ],
+          "web-desktop": [],
+          "packages": {},
+          "__version__": "1.3.4"
+        },
+        "time": "2-28-2023 14:51",
         "dirty": false
       }
     }

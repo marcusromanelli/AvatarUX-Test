@@ -1,4 +1,4 @@
-import { _decorator, Component, SpriteFrame, AudioSource, Sprite, Node, resources, tween, v2, Vec3 } from 'cc';
+import { _decorator, Component, SpriteFrame, AudioSource, Sprite, Node, resources, tween, v2, Vec3, ccenum } from 'cc';
 const { ccclass, property } = _decorator;
 
 import Slot from "../enumerators/SlotDirection";
@@ -6,35 +6,73 @@ import Reel from "./Reel";
 import ResultData from "../structs/ResultData";
 import TokenData from "../structs/TokenData";
 import TokenIcon from '../structs/TokenIcon';
+import TilePopWin from './TilePopWin';
+import { PopWinData, WinData } from '../managers/Server';
 
 @ccclass('Tile')
 export default class Tile extends Component {
   @property({ type: [TokenIcon], visible: true })
-  private textures: TokenIcon[] = [];
+  protected textures: TokenIcon[] = [];
+
+  @property({ type: TilePopWin })
+  private popWinUp: TilePopWin = null;
+
+  @property({ type: TilePopWin })
+  private popWinDown: TilePopWin = null;
 
   @property({ type: AudioSource })
-  private audioSource = null;
+  protected audioSource = null;
 
   @property({ type: Sprite })
-  private sprite = null;
+  protected sprite = null;
 
-  @property({ type: Node })
-  private glowEffect = null;
-
-  private parentReel = null;
-  private spinDirectionModifier: number;
-  private willStopSpinning: boolean;
-  private tokenData: TokenData;
-  private currentSprite: TokenIcon;
+  protected parentReel: Reel = null;
+  protected spinDirectionModifier: number;
+  protected willStopSpinning: boolean;
+  protected tokenData: TokenData;
+  protected currentSprite: TokenIcon;
 
   initialize(parentReel: Reel): void{
         this.parentReel = parentReel;
         this.disableGlowEffect();
   }
+  reset(): void{
+      this.popWinUp.hide();
+      this.popWinDown.hide();
+  }
   setToken(key: string): void {
       this.currentSprite =  this.textures.find(tex => tex.id == key);
 
       this.sprite.spriteFrame = this.currentSprite.sprite;
+  }
+  setPopWinData(popWinData: PopWinData){
+      let key = popWinData.token.id;
+
+      this.setToken(key);
+
+      if(popWinData.won)
+            this.enableGlowEffect();
+  }
+  setTokenData(tokenData: TokenData): void {
+
+      if(tokenData.winnerData != null){
+            let hasPopWin = tokenData.winnerData.popWinData.length > 0;
+
+            if(hasPopWin){
+                  var currentReelTopWinData = tokenData.winnerData.popWinData[this.parentReel.ReelIndex];
+                  var currentReelBottomWinData = tokenData.winnerData.popWinData[this.parentReel.ReelIndex + 1];
+
+                  this.popWinUp.setWinData(currentReelTopWinData);
+                  this.popWinDown.setWinData(currentReelBottomWinData);
+            }
+      }
+
+      let key = tokenData.tokenIndex;
+
+      this.setToken(key);
+  }
+  showPopWin(): void{
+
   }
   setRandom(): void {
         const randomIndex = Math.floor(Math.random() * this.textures.length);
@@ -42,6 +80,8 @@ export default class Tile extends Component {
         this.setToken(this.textures[randomIndex].id);
   }
   startSpinning(spinDirectionModifier: number, startDelayTime: number): void{
+      this.reset();
+
       this.tokenData = null;
       this.disableGlowEffect();
       this.spinDirectionModifier = spinDirectionModifier == Slot.Direction.Up ? 1 : -1;
@@ -107,7 +147,7 @@ export default class Tile extends Component {
             if(this.tokenData == null)
                   this.setRandom();
             else
-                  this.setToken(this.tokenData.tokenIndex);
+                  this.setTokenData(this.tokenData);
         }
   }
   public stopSpinning(): void{
@@ -135,8 +175,12 @@ export default class Tile extends Component {
       .start();
   }
   checkGlowEffect(): void{
-        if(this.tokenData != null && this.tokenData.isWinner)
+        if(this.tokenData != null && this.tokenData.winnerData)
             this.enableGlowEffect();
+  }
+  showPopWins(): void{
+      this.popWinUp.showPopWin();
+      this.popWinDown.showPopWin();
   }
   enableGlowEffect(): void{
         this.toggleGlowEffect(true);

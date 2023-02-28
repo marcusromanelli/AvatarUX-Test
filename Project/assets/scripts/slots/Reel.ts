@@ -45,11 +45,18 @@ export default class Reel extends Component {
         return this._tilePrefab;
   }
   private resultData: ResultReel = null;
+  private reelIndex: number = -1;
+
+  public get ReelIndex(): number{
+      return this.reelIndex;
+  }
 
 /**
  * Instantiate all necessary Tiles
  */
-  createReel(numberOfRows: number, name: string, spinDirection?: number): void {
+  createReel(numberOfRows: number, reelIndex: number, spinDirection?: number): void {
+      this.reelIndex = reelIndex;
+
         if(this.tileContainer.children.length <= 0){
             this.tiles = [];
 
@@ -62,10 +69,6 @@ export default class Reel extends Component {
             this.tiles = this.getComponentsInChildren(Tile);
         }
 
-        this.tiles.forEach(tile => {
-            tile.initialize(this);
-        });
-
         this.spinDirection = spinDirection;
 
         this.shuffle();
@@ -74,6 +77,8 @@ export default class Reel extends Component {
   instantiateTile(): void{
         let newTileObject = instantiate(this.tilePrefab);
         let newTile = newTileObject.getComponent(Tile);
+
+        newTile.initialize(this)
 
         this.tiles.push(newTile);
 
@@ -131,11 +136,16 @@ export default class Reel extends Component {
  * Request the next result in line
  */
   requestResult(): TokenData{
-        return this.resultData.getNextToken();
+        return this.resultData.getNextToken(this.reelIndex);
   }
 
   showGlowingTiles(){
       for(let i = 0; i < this.tiles.length; i++)
             this.tiles[i].checkGlowEffect();
+  }
+
+  showPopWins(){
+      for(let i = 0; i < this.tiles.length; i++)
+            this.tiles[i].showPopWins();
   }
 }

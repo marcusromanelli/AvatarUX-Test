@@ -93,7 +93,7 @@ set reelPrefab(newPrefab: Prefab) {
         this.reels.forEach(reel => {
               let spinDirection = (i % 2) ? EnumSlot.Direction.Down : EnumSlot.Direction.Up;
 
-              reel.createReel(this._machineData.numberOfRows, i+" - ", spinDirection);
+              reel.createReel(this._machineData.numberOfRows, i, spinDirection);
               i++;
         });
   }
@@ -122,7 +122,7 @@ set reelPrefab(newPrefab: Prefab) {
         let newReelNode = instantiate(this.reelPrefab);
         let newReel = newReelNode.getComponent(Reel);
 
-        newReel.createReel(this._machineData.numberOfRows, i + " - ", spinDirection);
+        newReel.createReel(this._machineData.numberOfRows, i, spinDirection);
 
 
         this.node.addChild(newReel.node);
@@ -222,7 +222,11 @@ set reelPrefab(newPrefab: Prefab) {
       var tryCelebrationLabel: Tween<unknown>;
       
       if(result.hasPrize())
-            tryCelebrationLabel = tween().target(this.celebration).call(() => { this.showCelebrationLabel(result.totalPrize); } ).delay(2.5).call(() => { this.hideCelebrationLabel(); });
+            tryCelebrationLabel = tween()
+            .target(this.celebration)
+            .call(() => { this.showCelebrationLabel(result.totalPrize); } )
+            .delay(2.5)
+            .call(() => { this.hideCelebrationLabel(); });
       else
             tryCelebrationLabel = tween().target(this.node).delay(0.25);
 
@@ -231,6 +235,10 @@ set reelPrefab(newPrefab: Prefab) {
       .delay(buttonDelay/1000)
       .call(() => {
             this.showGlowingTiles();
+      })
+      .delay(0.5)
+      .call(() => {
+            this.showPopWins();
       })
       .delay(0.5)
       .then(tryCelebrationLabel)
@@ -252,6 +260,14 @@ set reelPrefab(newPrefab: Prefab) {
             const theReel = this.reels[i];
 
             theReel.showGlowingTiles();
+      }
+
+  }
+  showPopWins(){
+      for (let i = 0; i < this._machineData.numberOfReels; i += 1) {
+            const theReel = this.reels[i];
+
+            theReel.showPopWins();
       }
 
   }

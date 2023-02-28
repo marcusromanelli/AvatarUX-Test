@@ -9,14 +9,25 @@ export default class ResultReel {
     public selectedTokens: Array<string> = null;
     public winningTokens: WinData[] = null;
 
-    isTokenWinning(tokenIndex: string): boolean{
-         return this.winningTokens.filter(winningTokenIndex => winningTokenIndex.tokenIndex.id == tokenIndex).length > 0;
+    isTokenWinning(tokenIndex: string, currentReel: number): WinData{
+        let data = this.winningTokens.find(WinData => WinData.token.id == tokenIndex && currentReel >= WinData.startsAt);
+
+        if(data == null)
+            return null;
+
+        if(data.winCount <= 0)
+            return null;
+
+        data.winCount--;
+
+        return data;
     }
-    getNextToken(): TokenData{
+    getNextToken(currentReel: number): TokenData{
         let tokenData = new TokenData;
 
         tokenData.tokenIndex = this.selectedTokens.pop();
-        tokenData.isWinner = this.isTokenWinning(tokenData.tokenIndex);
+        tokenData.winnerData = this.isTokenWinning(tokenData.tokenIndex, currentReel);
+
 
         return tokenData;
     }

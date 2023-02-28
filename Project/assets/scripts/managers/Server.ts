@@ -6,10 +6,18 @@ import MachineData from '../structs/MachineData';
 import UserData from '../structs/UserData';
 import TokenPossibility from '../structs/Possibility';
 
+export class PopWinData{
+    public rowIndex: number = 0;
+    public token: TokenPossibility;
+    public won: boolean;
+}
+
 export class WinData{
     public rowIndex: number = 0;
-    public tokenIndex: TokenPossibility;
-    public value = 0;
+    public token: TokenPossibility;
+    public winCount: number;
+    public startsAt: number;
+    public popWinData: PopWinData[] = [];
 }
 
 class RowTokenUse{
@@ -110,13 +118,13 @@ export default class Server extends Component{
         let usedTokensPerReel: { [rowNumber: number] : RowTokenUse; } = {};
 
         for(let row = 0; row < currentMachine.numberOfRows; row++){
-            let lastChosenToken = { token: new TokenPossibility, count: 0};
+            let lastChosenToken = { token: new TokenPossibility, count: 0, startsAt: -1};
 
             for(let reel = 0; reel < currentMachine.numberOfReels; reel++){
                 let randomToken = this.GetRandomToken(currentMachine, usedTokensPerReel[reel]);
                 let tokenKey = randomToken.id;
 
-                /*if((row == 0 && reel == 0) || (row == 0 && reel == 1) || (row == 0 && reel == 2)){
+                /*if((row == 0 && reel == 0) || (row == 0 && reel == 2) || (row == 0 && reel == 3) || (row == 0 && reel == 4)){
                     randomToken = this.FindTokenById(currentMachine, "9");
                     tokenKey = randomToken.id;
                 }*/
@@ -140,13 +148,38 @@ export default class Server extends Component{
                     lastChosenToken.count++;
                     
                     if(lastChosenToken.count >= 3)
-                        winningData[row] = { rowIndex: row, tokenIndex: lastChosenToken.token, value: lastChosenToken.count * lastChosenToken.token.value  };
+                        winningData[row] = { rowIndex: row, token: lastChosenToken.token, winCount: lastChosenToken.count, popWinData: [], startsAt: lastChosenToken.startsAt};
                 }else{
                     lastChosenToken.token = randomToken;
                     lastChosenToken.count = 1;
+                    lastChosenToken.startsAt = reel;
                 }
             }
         }
+
+
+        winningData.forEach(element => {
+            if(element.token.triggersPopWin){
+                let tileNumber = element.winCount;
+                element.popWinData = [];
+
+                for(let tile = 0; tile < tileNumber; tile++){
+                    //2 new tiles per won tile
+                    var tokenUp = this.GetRandomToken(currentMachine, null);
+                    var tokenDown = this.GetRandomToken(currentMachine, null);
+
+                    let hasWon = tokenUp.id == tokenDown.id;
+
+
+
+                    element.popWinData.push( { rowIndex: element.rowIndex, token: tokenUp, won: hasWon});
+                    element.popWinData.push( { rowIndex: element.rowIndex, token: tokenDown, won: hasWon});
+                }
+            }
+        });
+
+
+
 
         finalResultData.winningTokens = winningData;
 
@@ -154,7 +187,15 @@ export default class Server extends Component{
             let totalPrize = 0;
 
             finalResultData.winningTokens.forEach(element => {
-                totalPrize += element.value;
+                totalPrize += element.token.value * element.winCount;
+
+                if(element.popWinData.length > 0){
+                    element.popWinData.forEach(popWin => {
+                        if(popWin.won){
+                            totalPrize += popWin.token.value * 2;
+                        }
+                    });                    
+                }
             })
 
             totalPrize = totalPrize * currentMachine.betValue;

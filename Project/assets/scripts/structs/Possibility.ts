@@ -9,4 +9,5 @@ export default class TokenPossibility{
     id = "";
     percentage = 0;
     value = 0;
+    triggersPopWin = false
 }
